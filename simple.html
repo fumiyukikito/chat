@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Chatアプリ</title>
+</head>
+<body>
+
+<!-- コンテンツ表示画面 -->
+<div>
+    <ul style="list-style: none; display: flex; text-align: left;">
+
+        <li class="imgs" data-img="0"><img src="imgs/buke.png" width="100" class="icon0"></li>
+        <li class="imgs" data-img="1"><img src="imgs/tuku.jpg" width="100" class="icon1"></li>
+        <li class="imgs" data-img="2"><img src="imgs/oni.jpeg" width="100" class="icon2" ></li>
+        </ul>
+
+    <div>名前 : <span id="uname"></span></div>
+    <div>
+        <textarea  id="text" cols="30" rows="10"></textarea>
+        <button id="send">送信</button>
+    </div>
+ <div id="output" style="height: 300px; overflow:auto;border:1px solid red;"></div>
+</div>
+
+
+<!--/ コンテンツ表示画面 -->
+
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!-- JQuery -->
+
+
+<!--** 以下Firebase **-->
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyDx-0RfcBoh0PH-Z8WPdHZAnmxHdOFSDeg",
+    authDomain: "dev17-5950c.firebaseapp.com",
+    databaseURL: "https://dev17-5950c.firebaseio.com",
+    projectId: "dev17-5950c",
+    storageBucket: "dev17-5950c.appspot.com",
+    messagingSenderId: "1015168705913",
+    appId: "1:1015168705913:web:f76eefe2b8fae3d6dc3ba8"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const ref = firebase.database().ref();
+
+
+
+let d=0;
+let n = "";
+const img = ["buke.png","tuku.jpg","oni.jpeg"];
+$(".imgs").on("click",function(){
+d=$(this).attr("data-img");
+ if(d == 0){
+    n = "ねこ";
+      $(".icon0").css("opacity", 1);      
+      $(".icon1").css("opacity", 0.3);
+      $(".icon2").css("opacity", 0.3);
+    }
+    else if(d == 1){
+        n = "ぺんぎん";
+      $(".icon0").css("opacity", 0.3);
+      $(".icon1").css("opacity", 1);
+      $(".icon2").css("opacity", 0.3);
+    }
+    else{
+      n = "おにちゃん";
+      $(".icon0").css("opacity", 0.3);
+      $(".icon1").css("opacity", 0.3);
+      $(".icon2").css("opacity", 1);
+    }
+     $("#uname").html(n);
+});
+
+//関数定義
+function send(){
+    // 時間の定義
+var h = new Date();
+var year = h.getFullYear();
+var month = h.getMonth()+1;
+var week = h.getDay();
+var day = h.getDate();
+var hours = h.getHours();
+var minutes = h.getMinutes();
+var t = year + "年"+ month +"月" + day + "日" + hours + "時" + minutes + "分";
+
+    const uname = n ;
+    const text  = $("#text").val();
+    
+        const msg   = {
+        uname:uname,
+        text:text,
+        time:t,
+        icon:d
+    }
+    ref.push(msg);　   //set=決まった名前、push=ユニークの名前
+}
+
+
+// 文字を送信
+$("#send").on("click",function(){
+    send();
+});
+
+// 受信処理
+ref.on("child_added",function(data){
+    const v =data.val(); //送信されたオブジェクトを取得。
+    const k =data.key;　//ユニークキーの取得
+    const h ='<dl id="'+k+'"><dt><img src="imgs/'+img[v.icon]+'" width="50"><br>'+v.uname+'</dt><dd>'+v.text+'</dd><dd>'+v.time+'</dd></dl>';
+    $("#output").append(h);
+    $('#output').each(function(){ 
+    $(this).scrollTop($(this).prop('scrollHeight')); 
+      }); 
+    
+});
+
+//イベント情報取得
+$("#text").on("keydown",function(e){
+    if(e.keyCode == 13){
+    send();
+     } 
+});
+
+
+</script>
+
+
+
+
+</body>
+</html>
